@@ -17,37 +17,30 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Setup Java 17
-        uses: actions/setup-java@v2
-        with:
-          distribution: 'adopt'
-          java-version: '17'
-
       - name: Download and configure PaperMC
         run: |
           wget https://api.papermc.io/v2/projects/paper/versions/1.19.3/builds/399/downloads/paper-1.19.3-399.jar -O $SERVER_JAR
           echo "eula=true" > eula.txt
 
-      - name: Start Minecraft Server
-        run: java -Xmx2G -Xms2G -jar $SERVER_JAR nogui
-
-      - name: Download and configure ngrok
+      - name: Start Minecraft Server and ngrok
         run: |
+          java -Xmx2G -Xms2G -jar $SERVER_JAR nogui & 
           wget https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip -O ngrok.zip
           unzip ngrok.zip
           ./ngrok authtoken $NGROK_AUTH_TOKEN
-
-      - name: Start ngrok and forward Minecraft port
-        run: |
           ./ngrok tcp 25565 --region=us > ngrok.log &
           sleep 10
-          echo "Minecraft server is running at: $(grep -o -E "tcp://(.+)" ngrok.log | sed "s/tcp:/https:/")"
-
-      - name: Print ngrok URL
-        run: |
-          echo "Minecraft server is running at: $(grep -o -E "tcp://(.+)" ngrok.log | sed "s/tcp:/https:/")"
+          NGROK_URL=$(grep -o -E "tcp://(.+)" ngrok.log | sed "s/tcp:/https:/")
+          if [ -n "$NGROK_URL" ]
+          then
+            echo "Minecraft server is running at: $NGROK_URL"
+          else
+            echo "Failed to start Minecraft server and ngrok"
+            exit 1
+          fi
 
       - name: Loop for 2 hours and save server data to GitHub
+        if: success()
         run: |
           for i in {1..120}
           do
@@ -59,3 +52,14 @@ jobs:
             git commit -m "Save server data to GitHub"
             git push
           done
+
+      - name: Save server data to GitHub
+        if: failure() || cancelled()
+        uses: actions/github-script@v4
+        with:
+          script: |
+            const message = `Minecraft server data not saved to GitHub due to ${github.event_name}`;
+            const { context: { sha, repo: { owner, repo } } } = github;
+            github.repos.createCommitComment({ owner, repo, sha, body: message });
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
