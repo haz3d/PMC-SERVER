@@ -4,6 +4,7 @@
 <img src="https://img.shields.io/badge/build-passing-brightgreen">
 <img alt="GitHub" src="https://img.shields.io/github/license/haz3d/PMC-SERVER">
 <img alt="GitHub release (latest by date)" src="https://img.shields.io/github/v/release/haz3d/PMC-SERVER">
+<img alt="GitHub all releases" src="https://img.shields.io/github/downloads/haz3$/PMC-SERVER/total">
 
 This is a GitHub Actions workflow that sets up a Minecraft server and exposes it to the internet using ngrok. It also saves server data to GitHub at regular intervals.
 
