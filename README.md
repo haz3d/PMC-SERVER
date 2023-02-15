@@ -1,4 +1,5 @@
-# Minecraft Server Workflow
+<div align="center">
+<h1>Minecraft Server Workflow</h1>
 
 This is a GitHub Actions workflow that sets up a Minecraft server and exposes it to the internet using ngrok. It also saves server data to GitHub at regular intervals.
 
@@ -17,4 +18,4 @@ Once you have set up the workflow, you can run it by pushing to the `main` branc
 - The workflow will run for 2 hours before stopping. You can adjust the loop iteration count in the `Loop for 2 hours and save server data to GitHub` step.
 - The workflow will save server data to GitHub at regular intervals, even if it is cancelled. Make sure to cancel the workflow only when you want to stop the server permanently.
 - The ngrok URL may take a few seconds to appear in the workflow logs. Be patient!
-
+</div>
